@@ -13,7 +13,7 @@ export default function App() {
       {debug && (
         <>
           <Stats />
-          <axesHelper />
+          {/* <axesHelper /> */}
         </>
       )}
       <OrbitControls />
