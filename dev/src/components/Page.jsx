@@ -8,6 +8,7 @@ export default function Page({
   index,
   width,
   height,
+  pageThickness,
   // state,
   turnPage,
   setRef,
@@ -23,7 +24,20 @@ export default function Page({
 
   return (
     <group ref={ref} position={[0.0001, 0, 0.0001]}>
+      {/* Pages */}
+      {/* Left page */}
       <mesh
+        position={[width / 2, 0, 0]}
+        onClick={(event) => turnPage(event, index)}
+      >
+        <boxGeometry args={[width, height, pageThickness]} />
+        <meshStandardMaterial
+          color={index % 2 === 0 ? "yellow" : "orange"}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      {/* Right page */}
+      {/* <mesh
         position={[width / 2, 0, 0]}
         onClick={(event) => turnPage(event, index)}
       >
@@ -32,8 +46,8 @@ export default function Page({
           color={index % 2 === 0 ? "yellow" : "orange"}
           side={THREE.DoubleSide}
         />
-      </mesh>
-      <axesHelper />
+      </mesh> */}
+      {/* Content */}
       {children}
     </group>
   );
