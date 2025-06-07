@@ -4,8 +4,10 @@ import { Float } from "@react-three/drei";
 import { gsap } from "gsap";
 import { useControls } from "leva";
 
+import Page from "./Page";
+
 const OPEN_PAGE_ROTATION = (-5 * Math.PI) / 6;
-const DOUBLE_PAGE_COUNT = 4;
+const DOUBLE_PAGE_COUNT = 3;
 
 export default function Book() {
   const leftPageRef = useRef();
@@ -48,15 +50,13 @@ export default function Book() {
   });
 
   const openBook = (event) => {
-    const newIsOpen = !isOpen;
+    event.stopPropagation();
 
-    setIsOpen(newIsOpen);
+    setIsOpen(!isOpen);
     gsap.to(leftPageRef.current.rotation, {
-      y: newIsOpen ? OPEN_PAGE_ROTATION : 0,
+      y: !isOpen ? OPEN_PAGE_ROTATION : 0,
       duration: 1,
     });
-
-    event.stopPropagation();
   };
 
   const turnPage = (event, clickedPageNumber) => {
@@ -64,15 +64,24 @@ export default function Book() {
 
     const action =
       currentPageNumber <= clickedPageNumber ? "forward" : "backward";
+    console.log(
+      "clicked page",
+      clickedPageNumber,
+      "currentPageNumber",
+      currentPageNumber,
+      "action",
+      action
+    );
 
     setCurrentPageNumber(clickedPageNumber + (action === "forward" ? 1 : 0));
 
-    pagesRef.current[clickedPageNumber].y += 10;
     gsap.to(pagesRef.current[clickedPageNumber].rotation, {
       y: action === "forward" ? OPEN_PAGE_ROTATION : 0,
       duration: 1,
     });
   };
+
+  console.log(pagesRef.current);
 
   return (
     <Float {...floatControls}>
@@ -85,27 +94,23 @@ export default function Book() {
       </group>
 
       {/* Inside pages */}
-      {Array.from({ length: DOUBLE_PAGE_COUNT - 1 }).map((_, i) => (
-        <group
-          ref={(ref) => (pagesRef.current[i] = ref)}
-          position={[0.0001, 0, 0.0001]}
-          rotation={[0, innerPageRotation, 0]}
-          key={`page${i}`}
-        >
-          <mesh
-            position={[width / 2, 0, 0]}
-            onClick={(event) => turnPage(event, i)}
+      {Array.from({ length: DOUBLE_PAGE_COUNT - 1 }).map((_, i) => {
+        return (
+          <Page
+            key={`page${i}`}
+            index={i}
+            width={width}
+            height={height}
+            turnPage={turnPage}
+            setRef={(ref) => (pagesRef.current[i] = ref)}
           >
-            <planeGeometry args={[width, height]} />
-            <meshStandardMaterial
-              color={i % 2 === 0 ? "yellow" : "orange"}
-              wireframe={wireframe}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
-          <axesHelper />
-        </group>
-      ))}
+            {/* <mesh>
+              <planeGeometry />
+              <meshStandardMaterial color="green" />
+            </mesh> */}
+          </Page>
+        );
+      })}
 
       {/* Right page */}
       <mesh position={[width / 2, 0, -thickness / 2]}>
