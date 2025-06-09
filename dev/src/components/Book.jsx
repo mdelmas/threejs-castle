@@ -17,27 +17,16 @@ import {
 
 export default function Book({ debug }) {
   const [isOpen, setIsOpen] = useState(false);
-  // const [currentPageNumber, setCurrentPageNumber] = useState(0);
+  const [currentPageNumber, setCurrentPageNumber] = useState(0);
 
   const leftCoverRef = useRef();
-  // const pagesRef = useRef([]);
+  const pagesRef = useRef([]);
   const edgeRef = useRef();
 
   const { dimensions, leftCoverRotation } = useControls("book", {
     dimensions: { width: 1, height: 1.5, thickness: 0.15 },
     leftCoverRotation: { min: -Math.PI, max: 0, step: Math.PI / 6 },
   });
-
-  // const pagesControls = useControls("book pages", {
-  //   pagesCount: { value: 2, step: 1, minc: 0 },
-  //   pageThickness: { value: 0 },
-  //   innerPageRotation: {
-  //     value: 0,
-  //     min: -Math.PI,
-  //     max: 0,
-  //     step: Math.PI / 6,
-  //   },
-  // });
 
   const openBook = (event) => {
     event.stopPropagation();
@@ -55,20 +44,22 @@ export default function Book({ debug }) {
     });
   };
 
-  // const turnPage = (event, clickedPageNumber) => {
-  //   event.stopPropagation();
-  //   console.log("in turnPage", clickedPageNumber, currentPageNumber, action);
+  const turnPage = (event, clickedPageNumber) => {
+    event.stopPropagation();
 
-  //   const action =
-  //     currentPageNumber <= clickedPageNumber ? "forward" : "backward";
+    const action =
+      currentPageNumber <= clickedPageNumber ? "forward" : "backward";
+    console.log("in turnPage", clickedPageNumber, currentPageNumber, action);
 
-  //   setCurrentPageNumber(clickedPageNumber + (action === "forward" ? 1 : 0));
-  //   // turn page
-  //   gsap.to(pagesRef.current[clickedPageNumber].rotation, {
-  //     y: action === "forward" ? OPEN_PAGE_ROTATION : 0,
-  //     duration: 1,
-  //   });
-  // };
+    setCurrentPageNumber(clickedPageNumber + (action === "forward" ? 1 : 0));
+    // turn page
+    gsap.to(pagesRef.current[clickedPageNumber].rotation, {
+      y: action === "forward" ? OPEN_PAGE_ROTATION : 0,
+      duration: 1,
+    });
+  };
+
+  console.log(pagesRef);
 
   return (
     <>
@@ -83,22 +74,21 @@ export default function Book({ debug }) {
       />
 
       {/* Inside pages */}
-      {/* {Array.from({ length: DOUBLE_PAGE_COUNT - 1 }).map((_, i) => {
+      {Array.from({ length: DOUBLE_PAGE_COUNT - 1 }).map((_, i) => {
         return (
           <Page
             key={`page${i}`}
             index={i}
+            ref={(el) => (pagesRef.current[i] = el)}
             dimensions={dimensions}
-            width={dimensions.width}
-            height={dimensions.height}
-            pageThickness={pagesControls.pageThickness}
-            turnPage={turnPage}
-            setRef={(ref) => (pagesRef.current[i] = ref)}
+            turnPage={(event) => turnPage(event, i)}
           ></Page>
         );
-      })} */}
+      })}
+
       {/* Right cover */}
       <Cover type={COVER_TYPE.BACK} dimensions={dimensions} debug={debug} />
+
       {/* Edge */}
       <Edge ref={edgeRef} dimensions={dimensions} debug={debug} />
     </>
