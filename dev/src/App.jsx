@@ -5,7 +5,7 @@ import Lights from "./components/Lights";
 import Book from "./components/Book";
 
 export default function App() {
-  const { debug } = useControls("general", { debug: true });
+  const { debug } = useControls("general", { debug: false });
 
   return (
     <Canvas>
@@ -20,7 +20,7 @@ export default function App() {
       {/* Lights */}
       <Lights debug={debug} />
       {/* Elements */}
-      <Book />
+      <Book debug={debug} />
     </Canvas>
   );
 }

@@ -1,14 +1,15 @@
 import { useRef } from "react";
 import { DirectionalLightHelper } from "three";
 import { useHelper } from "@react-three/drei";
-import { useControls } from "leva";
+// import { useControls } from "leva";
 
 export default function Lights({ debug }) {
-  const { directionalLightPosition } = useControls("lights", {
-    directionalLightPosition: { value: [1, 0.5, 0.75] },
-  });
+  const init = { directionalLightPosition: [1, 0.5, 0.75] };
+  // const { directionalLightPosition } = useControls("lights", {
+  //   directionalLightPosition: { value: init.directionalLightPosition },
+  // });
 
-  const directionalLightRef = useRef();
+  const directionalLightRef = useRef(null);
 
   useHelper(
     debug && directionalLightRef,
@@ -22,7 +23,7 @@ export default function Lights({ debug }) {
       <ambientLight />
       <directionalLight
         ref={directionalLightRef}
-        position={directionalLightPosition}
+        position={init.directionalLightPosition}
       />
     </>
   );

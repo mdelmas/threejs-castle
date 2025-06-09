@@ -1,13 +1,13 @@
 import * as THREE from "three";
 import { useEffect, useRef } from "react";
+import { PADDING } from "../constants";
 
 const OPEN_PAGE_ROTATION = (-5 * Math.PI) / 6;
 
 export default function Page({
   children,
   index,
-  width,
-  height,
+  dimensions,
   pageThickness,
   // state,
   turnPage,
@@ -23,14 +23,20 @@ export default function Page({
   }, [ref, setRef]);
 
   return (
-    <group ref={ref} position={[0.0001, 0, 0.0001]}>
+    <group ref={ref} position={[PADDING, 0, PADDING]}>
       {/* Pages */}
       {/* Left page */}
       <mesh
-        position={[width / 2, 0, 0]}
+        position={[dimensions.width / 2, 0, 0]}
         onClick={(event) => turnPage(event, index)}
       >
-        <boxGeometry args={[width, height, pageThickness]} />
+        <boxGeometry
+          args={[
+            dimensions.width - PADDING,
+            dimensions.height - PADDING,
+            pageThickness,
+          ]}
+        />
         <meshStandardMaterial
           color={index % 2 === 0 ? "yellow" : "orange"}
           side={THREE.DoubleSide}
