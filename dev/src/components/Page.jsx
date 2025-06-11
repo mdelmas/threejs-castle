@@ -26,10 +26,16 @@ export default function Page({ index, ref, dimensions, turnPage, children }) {
 
       {/* Left page */}
       <mesh
-        position={[dimensions.width / 2 + rotationOffset, 0, 0]} // z = -thickness / 2 + PADDING
+        position={[dimensions.width / 2 + rotationOffset - PADDING / 2, 0, 0]} // z = -thickness / 2 + PADDING
         onClick={turnPage}
       >
-        <boxGeometry args={[dimensions.width, dimensions.height, thickness]} />
+        <boxGeometry
+          args={[
+            dimensions.width - PADDING,
+            dimensions.height - PADDING,
+            thickness,
+          ]}
+        />
         <meshStandardMaterial
           color={index % 2 === 0 ? "yellow" : "orange"}
           side={THREE.DoubleSide}
