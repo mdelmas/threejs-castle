@@ -63,7 +63,7 @@ export default function Book({ debug }) {
 
   return (
     <>
-      <axesHelper args={[2]} />
+      {/* <axesHelper args={[2]} /> */}
       {/* Left page */}
       <Cover
         ref={leftCoverRef}

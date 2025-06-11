@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { PADDING } from "../constants";
+import { PADDING, OPEN_PAGE_ROTATION } from "../constants";
 import { useControls } from "leva";
 
 export default function Page({ index, ref, dimensions, turnPage, children }) {
@@ -13,20 +13,23 @@ export default function Page({ index, ref, dimensions, turnPage, children }) {
     },
   });
 
+  const angleToMiddle = (Math.PI + OPEN_PAGE_ROTATION) / 2;
+  const rotationOffset = Math.tan(angleToMiddle) * (thickness / 2);
+
   return (
-    <group ref={ref} position={[0, 0, 0]}>
+    <group
+      ref={ref}
+      position={[-rotationOffset, 0, -thickness / 2 + PADDING]}
+      rotation={[0, innerPageRotation, 0]}
+    >
+      <axesHelper args={[2]} />
+
       {/* Left page */}
       <mesh
-        position={[dimensions.width / 2, 0, -thickness / 2 + PADDING]}
+        position={[dimensions.width / 2 + rotationOffset, 0, 0]} // z = -thickness / 2 + PADDING
         onClick={turnPage}
       >
-        <boxGeometry
-          args={[
-            dimensions.width - PADDING,
-            dimensions.height - PADDING,
-            thickness,
-          ]}
-        />
+        <boxGeometry args={[dimensions.width, dimensions.height, thickness]} />
         <meshStandardMaterial
           color={index % 2 === 0 ? "yellow" : "orange"}
           side={THREE.DoubleSide}
