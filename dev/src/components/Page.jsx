@@ -4,7 +4,7 @@ import { useControls } from "leva";
 
 export default function Page({ index, ref, dimensions, turnPage, children }) {
   const { thickness, innerPageRotation } = useControls("book pages", {
-    thickness: { value: 0.1 },
+    thickness: { value: 0.02 },
     innerPageRotation: {
       value: 0,
       min: -Math.PI,

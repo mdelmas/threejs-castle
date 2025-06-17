@@ -7,3 +7,8 @@ export const COVER_TYPE = {
   FRONT: "front",
   BACK: "back",
 };
+
+export const BOOK_STATE = {
+  CLOSE: 0,
+  OPEN: 1,
+};
