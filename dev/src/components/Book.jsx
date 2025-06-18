@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { useRef, useState } from "react";
 import { Float } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
 import { gsap } from "gsap";
 import { useControls } from "leva";
 
@@ -21,11 +20,11 @@ export default function Book({ debug }) {
   const openProgressRef = useRef({ value: BOOK_STATE.CLOSE });
   const [currentPageNumber, setCurrentPageNumber] = useState(0);
 
-  const pagesRef = useRef([]);
+  const pagesRefs = useRef([]);
 
-  const { dimensions, coverExtraLength, coverThickness } = useControls("book", {
+  const { dimensions, coverPadding, coverThickness } = useControls("book", {
     dimensions: { width: 1, height: 1.5, thickness: 0.15 },
-    coverExtraLength: { value: 0.02, min: 0, max: 1, step: 0.01 },
+    coverPadding: { value: 0.02, min: 0, max: 1, step: 0.01 },
     coverThickness: { value: 0.02, min: 0, max: 0.1, step: 0.001 },
   });
 
@@ -38,11 +37,8 @@ export default function Book({ debug }) {
           ? BOOK_STATE.OPEN
           : BOOK_STATE.CLOSE,
       duration: 1,
+      ease: "none",
     });
-
-    //
-    // cover length 0.884
-    // edge length 0.055
   };
 
   // const turnPage = (event, clickedPageNumber) => {
@@ -54,7 +50,7 @@ export default function Book({ debug }) {
 
   //   setCurrentPageNumber(clickedPageNumber + (action === "forward" ? 1 : 0));
   //   // turn page
-  //   gsap.to(pagesRef.current[clickedPageNumber].rotation, {
+  //   gsap.to(pagesRefs.current[clickedPageNumber].rotation, {
   //     y: action === "forward" ? OPEN_PAGE_ROTATION : 0,
   //     duration: 1,
   //   });
@@ -68,8 +64,8 @@ export default function Book({ debug }) {
         type={COVER_TYPE.FRONT}
         openProgressRef={openProgressRef}
         dimensions={dimensions}
-        extraLength={coverExtraLength}
-        thickness={coverThickness}
+        coverPadding={coverPadding}
+        coverThickness={coverThickness}
         openBook={openBook}
         debug={debug}
       />
@@ -80,7 +76,7 @@ export default function Book({ debug }) {
           <Page
             key={`page${i}`}
             index={i}
-            ref={(el) => (pagesRef.current[i] = el)}
+            ref={(el) => (pagesRefs.current[i] = el)}
             dimensions={dimensions}
             turnPage={(event) => turnPage(event, i)}
           ></Page>
@@ -92,8 +88,8 @@ export default function Book({ debug }) {
         type={COVER_TYPE.BACK}
         openProgressRef={openProgressRef}
         dimensions={dimensions}
-        extraLength={coverExtraLength}
-        thickness={coverThickness}
+        coverPadding={coverPadding}
+        coverThickness={coverThickness}
         debug={debug}
       />
 
@@ -101,6 +97,7 @@ export default function Book({ debug }) {
       <Edge
         openProgressRef={openProgressRef}
         dimensions={dimensions}
+        coverPadding={coverPadding}
         debug={debug}
       />
     </>

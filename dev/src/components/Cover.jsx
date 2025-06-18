@@ -4,18 +4,18 @@ import { useControls } from "leva";
 
 import { OPEN_PAGE_ROTATION, COVER_TYPE } from "../constants";
 
-const map = (value, min, max) => min + value * (max - min);
+import { map } from "../utils";
 
 const OPEN_LENGTH_FACTOR = 0.8784;
 
 export default function Cover({
   type,
+  openProgressRef,
   dimensions,
-  extraLength,
-  thickness,
+  coverPadding,
+  coverThickness,
   openBook,
   debug,
-  openProgressRef,
 }) {
   const groupRef = useRef();
   const coverRef = useRef();
@@ -28,8 +28,8 @@ export default function Cover({
       step: 0.0001,
     },
   });
-
-  const length = dimensions.width + extraLength;
+  console.log("openLengthFactor cover", openLengthFactor);
+  const length = dimensions.width + coverPadding;
 
   useFrame(() => {
     const openProgress = openProgressRef.current.value;
@@ -38,19 +38,13 @@ export default function Cover({
     }
 
     // adjutst cover length and position (shorter when open)
-    coverRef.current.scale.x = map(
-      openProgress,
-      length,
-      length * openLengthFactor
-    );
+    coverRef.current.scale.x = map(openProgress, 1, openLengthFactor);
     coverRef.current.position.x = map(
       openProgress,
       length - length / 2,
       length - (length * openLengthFactor) / 2
     );
   });
-
-  // cover length 0.884
 
   return (
     <group ref={groupRef}>
@@ -59,12 +53,12 @@ export default function Cover({
         ref={coverRef}
         position-z={
           (type === COVER_TYPE.FRONT ? 1 : -1) *
-          (dimensions.thickness + thickness / 2)
+          (dimensions.thickness + coverThickness / 2)
         }
         onClick={openBook}
       >
         <boxGeometry
-          args={[length, dimensions.height + extraLength * 2, thickness]}
+          args={[length, dimensions.height + coverPadding * 2, coverThickness]}
         />
         <meshStandardMaterial color="deeppink" wireframe={debug} />
       </mesh>

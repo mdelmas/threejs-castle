@@ -1,31 +1,57 @@
 import { useRef } from "react";
 import { useControls } from "leva";
+import { useFrame } from "@react-three/fiber";
 
 import { OPEN_PAGE_ROTATION, PADDING } from "../constants.js";
-import { useFrame } from "@react-three/fiber";
+
+import { map } from "../utils";
+
+const OPEN_LENGTH_FACTOR = 0.3235;
+// edge length 0.055
 
 export default function Edge({ openProgressRef, dimensions, debug }) {
   const groupRef = useRef();
+  const coverSidesRef = useRef([]);
 
-  const { extraThickness, extraCover, length } = useControls("book edge", {
-    extraThickness: { value: 0.02 },
-    extraCover: { value: 0.02, min: 0, max: 1, step: 0.01 },
-    length: {
-      value: dimensions.thickness + 0.02,
-      min: 0,
-      max: dimensions.thickness + 0.02,
-      step: 0.001,
-    },
-  });
+  const { extraThickness, extraCover, openLengthFactor } = useControls(
+    "book edge",
+    {
+      extraThickness: { value: 0.02 },
+      extraCover: { value: 0.02, min: 0, max: 1, step: 0.01 },
+      openLengthFactor: {
+        value: OPEN_LENGTH_FACTOR,
+        min: 0,
+        max: 1,
+        step: 0.0001,
+      },
+    }
+  );
+  console.log("openLengthFactor edge", openLengthFactor);
+
+  const length = dimensions.thickness + 0.02;
 
   useFrame(() => {
     const openProgress = openProgressRef.current.value;
     groupRef.current.rotation.y = openProgress * (OPEN_PAGE_ROTATION / 2);
+
+    const sideLength = map(openProgress, 1, openLengthFactor);
+    coverSidesRef.current[0].scale.x = sideLength;
+    coverSidesRef.current[1].scale.x = sideLength;
+
+    const sidePosition = map(
+      openProgress,
+      -length + length / 2,
+      -length + (length * openLengthFactor) / 2
+    );
+    coverSidesRef.current[0].position.x = sidePosition;
+    coverSidesRef.current[1].position.x = sidePosition;
   });
 
   return (
     <group ref={groupRef}>
       {/* apply rotation on group */}
+      {/* cover */}
+      {/* center */}
       <mesh
         position={[
           0 -
@@ -44,7 +70,9 @@ export default function Edge({ openProgressRef, dimensions, debug }) {
         />
         <meshStandardMaterial color="deeppink" wireframe={debug} />
       </mesh>
+      {/* sides */}
       <mesh
+        ref={(el) => (coverSidesRef.current[0] = el)}
         position={[
           -(dimensions.thickness + extraThickness) - PADDING + length / 2,
           0,
@@ -58,6 +86,7 @@ export default function Edge({ openProgressRef, dimensions, debug }) {
       </mesh>
 
       <mesh
+        ref={(el) => (coverSidesRef.current[1] = el)}
         position={[
           -(dimensions.thickness + extraThickness) - PADDING + length / 2,
           0,
@@ -70,7 +99,7 @@ export default function Edge({ openProgressRef, dimensions, debug }) {
         <meshStandardMaterial color="deeppink" wireframe={debug} />
       </mesh>
 
-      {/* small edge */}
+      {/* inside */}
       <mesh
         position-x={0 - (dimensions.thickness + extraThickness) / 2 - PADDING}
       >
