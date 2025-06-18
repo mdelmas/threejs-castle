@@ -1,11 +1,12 @@
 import { OrbitControls, Stats } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { useControls } from "leva";
 import Lights from "./components/Lights";
 import Book from "./components/Book";
 
+import { useDebugControls } from "./hooks/useDebugControls";
+
 export default function App() {
-  const { debug } = useControls("general", { debug: false });
+  const { debug } = useDebugControls();
 
   return (
     <Canvas>
@@ -18,9 +19,9 @@ export default function App() {
       )}
       <OrbitControls />
       {/* Lights */}
-      <Lights debug={debug} />
+      <Lights />
       {/* Elements */}
-      <Book debug={debug} />
+      <Book />
     </Canvas>
   );
 }

@@ -11,21 +11,19 @@ import Cover from "./Cover";
 import {
   OPEN_PAGE_ROTATION,
   DOUBLE_PAGE_COUNT,
-  PADDING,
   COVER_TYPE,
   BOOK_STATE,
 } from "../constants.js";
 
-export default function Book({ debug }) {
+export default function Book() {
   const openProgressRef = useRef({ value: BOOK_STATE.CLOSE });
-  const [currentPageNumber, setCurrentPageNumber] = useState(0);
 
+  const [currentPageNumber, setCurrentPageNumber] = useState(0);
   const pagesRefs = useRef([]);
 
-  const { dimensions, coverPadding, coverThickness } = useControls("book", {
+  const { dimensions, coverDimensions } = useControls("book", {
     dimensions: { width: 1, height: 1.5, thickness: 0.15 },
-    coverPadding: { value: 0.02, min: 0, max: 1, step: 0.01 },
-    coverThickness: { value: 0.02, min: 0, max: 0.1, step: 0.001 },
+    coverDimensions: { value: { padding: 0.02, thickness: 0.02 } },
   });
 
   const openBook = (event) => {
@@ -37,24 +35,24 @@ export default function Book({ debug }) {
           ? BOOK_STATE.OPEN
           : BOOK_STATE.CLOSE,
       duration: 1,
-      ease: "none",
+      ease: "power1.out",
     });
   };
 
-  // const turnPage = (event, clickedPageNumber) => {
-  //   event.stopPropagation();
+  const turnPage = (event, clickedPageNumber) => {
+    event.stopPropagation();
 
-  //   const action =
-  //     currentPageNumber <= clickedPageNumber ? "forward" : "backward";
-  //   console.log("in turnPage", clickedPageNumber, currentPageNumber, action);
+    const action =
+      currentPageNumber <= clickedPageNumber ? "forward" : "backward";
+    console.log("in turnPage", clickedPageNumber, currentPageNumber, action);
 
-  //   setCurrentPageNumber(clickedPageNumber + (action === "forward" ? 1 : 0));
-  //   // turn page
-  //   gsap.to(pagesRefs.current[clickedPageNumber].rotation, {
-  //     y: action === "forward" ? OPEN_PAGE_ROTATION : 0,
-  //     duration: 1,
-  //   });
-  // };
+    setCurrentPageNumber(clickedPageNumber + (action === "forward" ? 1 : 0));
+    // turn page
+    gsap.to(pagesRefs.current[clickedPageNumber].rotation, {
+      y: action === "forward" ? OPEN_PAGE_ROTATION : 0,
+      duration: 1,
+    });
+  };
 
   return (
     <>
@@ -64,14 +62,12 @@ export default function Book({ debug }) {
         type={COVER_TYPE.FRONT}
         openProgressRef={openProgressRef}
         dimensions={dimensions}
-        coverPadding={coverPadding}
-        coverThickness={coverThickness}
+        coverDimensions={coverDimensions}
         openBook={openBook}
-        debug={debug}
       />
 
       {/* Inside pages */}
-      {/* {Array.from({ length: DOUBLE_PAGE_COUNT - 1 }).map((_, i) => {
+      {Array.from({ length: DOUBLE_PAGE_COUNT - 1 }).map((_, i) => {
         return (
           <Page
             key={`page${i}`}
@@ -81,24 +77,21 @@ export default function Book({ debug }) {
             turnPage={(event) => turnPage(event, i)}
           ></Page>
         );
-      })} */}
+      })}
 
       {/* Right cover */}
       <Cover
         type={COVER_TYPE.BACK}
         openProgressRef={openProgressRef}
         dimensions={dimensions}
-        coverPadding={coverPadding}
-        coverThickness={coverThickness}
-        debug={debug}
+        coverDimensions={coverDimensions}
       />
 
       {/* Edge */}
       <Edge
         openProgressRef={openProgressRef}
         dimensions={dimensions}
-        coverPadding={coverPadding}
-        debug={debug}
+        coverDimensions={coverDimensions}
       />
     </>
   );
