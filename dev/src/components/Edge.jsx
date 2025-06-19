@@ -1,14 +1,12 @@
-import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
 
 import { getDebug } from "../hooks/useDebugControls";
-import { map } from "../utils";
-
 import { OPEN_PAGE_ROTATION, PADDING } from "../constants.js";
 
 const OPEN_LENGTH_FACTOR = 0.3567; // edge length when open = 0.055
 
-export default function Edge({ openProgressRef, dimensions, coverDimensions }) {
+export default function Edge({ isOpen, dimensions, coverDimensions }) {
   const debug = getDebug();
 
   const groupRef = useRef();
@@ -16,22 +14,32 @@ export default function Edge({ openProgressRef, dimensions, coverDimensions }) {
 
   const length = dimensions.thickness + 0.02;
 
-  useFrame(() => {
-    const openProgress = openProgressRef.current.value;
-    groupRef.current.rotation.y = openProgress * (OPEN_PAGE_ROTATION / 2);
+  useEffect(() => {
+    if (!groupRef.current || !coverSidesRef.current) return;
 
-    const sideLength = map(openProgress, 1, OPEN_LENGTH_FACTOR);
-    coverSidesRef.current[0].scale.x = sideLength;
-    coverSidesRef.current[1].scale.x = sideLength;
+    // rotate edge when open
+    gsap.to(groupRef.current.rotation, {
+      y: isOpen ? OPEN_PAGE_ROTATION / 2 : 0,
+      duration: 1,
+      ease: "power1.out",
+    });
 
-    const sidePosition = map(
-      openProgress,
-      -length + length / 2,
-      -length + (length * OPEN_LENGTH_FACTOR) / 2
-    );
-    coverSidesRef.current[0].position.x = sidePosition;
-    coverSidesRef.current[1].position.x = sidePosition;
-  });
+    // shorten edge sides
+    coverSidesRef.current.forEach((coverSide) => {
+      gsap.to(coverSide.scale, {
+        x: isOpen ? OPEN_LENGTH_FACTOR : 1,
+        duration: 1,
+        ease: "power1.out",
+      });
+      gsap.to(coverSide.position, {
+        x: isOpen
+          ? -length + (length * OPEN_LENGTH_FACTOR) / 2
+          : -length + length / 2,
+        duration: 1,
+        ease: "power1.out",
+      });
+    });
+  }, [length, isOpen]);
 
   return (
     <group ref={groupRef}>

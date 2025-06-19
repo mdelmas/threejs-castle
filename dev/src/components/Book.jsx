@@ -16,42 +16,29 @@ import {
 } from "../constants.js";
 
 export default function Book() {
-  const openProgressRef = useRef({ value: BOOK_STATE.CLOSE });
+  const [isOpen, setIsOpen] = useState(false);
 
-  const [currentPageNumber, setCurrentPageNumber] = useState(0);
   const pagesRefs = useRef([]);
+  const [currentPage, setCurrentPage] = useState(null);
 
   const { dimensions, coverDimensions } = useControls("book", {
     dimensions: { width: 1, height: 1.5, thickness: 0.15 },
     coverDimensions: { value: { padding: 0.02, thickness: 0.02 } },
   });
 
-  const openBook = (event) => {
-    event.stopPropagation();
-
-    gsap.to(openProgressRef.current, {
-      value:
-        openProgressRef.current.value === BOOK_STATE.CLOSE
-          ? BOOK_STATE.OPEN
-          : BOOK_STATE.CLOSE,
-      duration: 1,
-      ease: "power1.out",
-    });
-  };
-
   const turnPage = (event, clickedPageNumber) => {
     event.stopPropagation();
 
-    const action =
-      currentPageNumber <= clickedPageNumber ? "forward" : "backward";
-    console.log("in turnPage", clickedPageNumber, currentPageNumber, action);
+    // const action =
+    //   currentPageNumber <= clickedPageNumber ? "forward" : "backward";
+    // console.log("in turnPage", clickedPageNumber, currentPageNumber, action);
 
-    setCurrentPageNumber(clickedPageNumber + (action === "forward" ? 1 : 0));
+    // setCurrentPageNumber(clickedPageNumber + (action === "forward" ? 1 : 0));
     // turn page
-    gsap.to(pagesRefs.current[clickedPageNumber].rotation, {
-      y: action === "forward" ? OPEN_PAGE_ROTATION : 0,
-      duration: 1,
-    });
+    // gsap.to(pagesRefs.current[clickedPageNumber].rotation, {
+    //   y: action === "forward" ? OPEN_PAGE_ROTATION : 0,
+    //   duration: 1,
+    // });
   };
 
   return (
@@ -60,14 +47,17 @@ export default function Book() {
       {/* Left page */}
       <Cover
         type={COVER_TYPE.FRONT}
-        openProgressRef={openProgressRef}
+        isOpen={isOpen}
         dimensions={dimensions}
         coverDimensions={coverDimensions}
-        openBook={openBook}
+        openBook={(event) => {
+          event.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
       />
 
       {/* Inside pages */}
-      {Array.from({ length: DOUBLE_PAGE_COUNT - 1 }).map((_, i) => {
+      {/* {Array.from({ length: DOUBLE_PAGE_COUNT - 1 }).map((_, i) => {
         return (
           <Page
             key={`page${i}`}
@@ -77,19 +67,19 @@ export default function Book() {
             turnPage={(event) => turnPage(event, i)}
           ></Page>
         );
-      })}
+      })}*/}
 
       {/* Right cover */}
       <Cover
         type={COVER_TYPE.BACK}
-        openProgressRef={openProgressRef}
+        isOpen={isOpen}
         dimensions={dimensions}
         coverDimensions={coverDimensions}
       />
 
       {/* Edge */}
       <Edge
-        openProgressRef={openProgressRef}
+        isOpen={isOpen}
         dimensions={dimensions}
         coverDimensions={coverDimensions}
       />

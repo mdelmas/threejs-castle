@@ -1,49 +1,59 @@
-import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
 
-import { OPEN_PAGE_ROTATION, COVER_TYPE } from "../constants";
-
-import { map } from "../utils";
 import { getDebug } from "../hooks/useDebugControls";
+import { OPEN_PAGE_ROTATION, COVER_TYPE } from "../constants";
 
 const OPEN_LENGTH_FACTOR = 0.8873;
 
 export default function Cover({
   type,
-  openProgressRef,
+  isOpen,
   dimensions,
   coverDimensions,
   openBook,
 }) {
+  const debug = getDebug();
+
   const groupRef = useRef();
   const coverRef = useRef();
 
-  const debug = getDebug();
-
   const length = dimensions.width + coverDimensions.padding;
 
-  useFrame(() => {
-    const openProgress = openProgressRef.current.value;
+  useEffect(() => {
+    if (!groupRef.current || !coverRef.current) return;
 
-    // rotate front cover when open
     if (type === COVER_TYPE.FRONT) {
-      groupRef.current.rotation.y = map(openProgress, 0, OPEN_PAGE_ROTATION);
+      // rotate front cover when open
+      gsap.to(groupRef.current.rotation, {
+        y: isOpen ? OPEN_PAGE_ROTATION : 0,
+        duration: 1,
+        ease: "power1.out",
+      });
     }
 
-    // adjutst cover length and position (shorter when open)
-    coverRef.current.scale.x = map(openProgress, 1, OPEN_LENGTH_FACTOR);
-    coverRef.current.position.x = map(
-      openProgress,
-      length - length / 2,
-      length - (length * OPEN_LENGTH_FACTOR) / 2
-    );
-  });
+    // adjust cover length and position (shorter when open)
+    gsap.to(coverRef.current.scale, {
+      x: isOpen ? OPEN_LENGTH_FACTOR : 1,
+      duration: 1,
+      ease: "power1.out",
+    });
+
+    gsap.to(coverRef.current.position, {
+      x: isOpen
+        ? length - (length * OPEN_LENGTH_FACTOR) / 2
+        : length - length / 2,
+      duration: 1,
+      ease: "power1.out",
+    });
+  }, [length, type, isOpen]);
 
   return (
     <group ref={groupRef}>
       {/* Cover */}
       <mesh
         ref={coverRef}
+        position-x={length - length / 2}
         position-z={
           (type === COVER_TYPE.FRONT ? 1 : -1) *
           (dimensions.thickness + coverDimensions.thickness / 2)
